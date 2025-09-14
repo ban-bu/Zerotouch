@@ -2,15 +2,15 @@
 
 // ModelScope API配置
 const MODELSCOPE_CONFIG = {
-  baseURL: 'https://api-inference.modelscope.cn/v1/',
-  model: 'deepseek-ai/DeepSeek-V3',
-  apiKey: 'ms-61ecf06f-49de-409b-b685-00a383961042'
+  baseURL: '/api/dashscope',  // 使用本地代理
+  model: 'deepseek-v3.1',
+  apiKey: 'sk-6c561648158845498bd79405450ebcd1'
 }
 
 // 调用魔搭API的通用函数
 const callModelScopeAPI = async (messages, temperature = 0.7) => {
   try {
-    const response = await fetch(`${MODELSCOPE_CONFIG.baseURL}chat/completions`, {
+    const response = await fetch(`${MODELSCOPE_CONFIG.baseURL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -83,6 +83,17 @@ const SolutionPanel = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // 工具函数：判断某条综合分析是否有对应的 Smart Follow-up Draft（通过关联ID精确匹配）
+  const hasSmartFollowupDraftFor = (compMessage) => {
+    if (!Array.isArray(messages)) return false
+    const compId = compMessage?.id || compMessage?.streamId
+    if (!compId) return false
+    return messages.some(m => m && m.type === 'intelligent_followup_candidate' && m.relatedComprehensiveId === compId)
+  }
+
+  // 是否存在任意 Smart Follow-up Draft（作为兜底：如果存在草稿，则先不展示“生成客户回复”按钮）
+  const hasAnySmartFollowupDraft = Array.isArray(messages) && messages.some(m => m && m.type === 'intelligent_followup_candidate')
+
   // 传递设置输入函数给父组件
   useEffect(() => {
     if (onSetInput) {
@@ -756,27 +767,29 @@ const SolutionPanel = ({
                 </div>
                 )
                 })()}
-                {/* 右侧操作区：生成客户回复按钮 */}
-                <div className="ml-2 mt-1">
-                  <button
-                    onClick={async () => {
-                      if (!onGenerateCustomerReplyForMessage) return
-                      const optimized = await onGenerateCustomerReplyForMessage({
-                        text: message.translation || message.suggestion || message.aiAdvice || message.text,
-                        translation: message.translation,
-                        suggestion: message.suggestion,
-                        aiAdvice: message.aiAdvice,
-                        timestamp: message.timestamp
-                      })
-                      // 不直接写入输入框，已在hook内以气泡形式生成
-                    }}
-                    className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50"
-                    disabled={message.isStreaming}
-                    title="Generate a customer reply as a separate bubble"
-                  >
-                    Generate customer reply
-                  </button>
-                </div>
+                {/* 右侧操作区：生成客户回复按钮（综合分析完成后，若已跳过信息收集且没有任何Smart Follow-up Draft时显示） */}
+                {!message.isStreaming && !showMissingInfoPanel && !hasAnySmartFollowupDraft && (
+                  <div className="ml-2 mt-1">
+                    <button
+                      onClick={async () => {
+                        if (!onGenerateCustomerReplyForMessage) return
+                        const optimized = await onGenerateCustomerReplyForMessage({
+                          text: message.translation || message.suggestion || message.aiAdvice || message.text,
+                          translation: message.translation,
+                          suggestion: message.suggestion,
+                          aiAdvice: message.aiAdvice,
+                          timestamp: message.timestamp
+                        })
+                        // 不直接写入输入框，已在hook内以气泡形式生成
+                      }}
+                      className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors disabled:opacity-50"
+                      disabled={message.isStreaming}
+                      title="Generate a customer reply as a separate bubble"
+                    >
+                      Generate customer reply
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 

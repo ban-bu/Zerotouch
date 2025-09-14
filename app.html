@@ -924,7 +924,7 @@
                 fontSize: 'medium',
                 soundEnabled: true,
                 autoScroll: true,
-                apiEndpoint: 'https://api-inference.modelscope.cn/v1'
+                apiEndpoint: '/api/dashscope'  // 使用本地代理
             },
             messages: {
                 problem: [],
@@ -966,9 +966,9 @@
 
         // LLM API 配置
         const MODELSCOPE_CONFIG = {
-            baseURL: 'https://api-inference.modelscope.cn/v1',
-            model: 'Qwen/Qwen2.5-7B-Instruct',
-            apiKey: 'ms-150d583e-ed00-46d3-ab35-570f03555599'
+            baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+            model: 'deepseek-v3.1',
+            apiKey: 'sk-6c561648158845498bd79405450ebcd1'
         };
 
         // 工具函数

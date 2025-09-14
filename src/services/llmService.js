@@ -6,11 +6,11 @@
 // ModelScope API configuration
 const MODELSCOPE_CONFIG = {
   // [MODIFIED] Use DeepSeek-V3.1 model with thinking mode
-  baseURL: 'https://api-inference.modelscope.cn/v1/',
-  model: 'deepseek-ai/DeepSeek-V3.1',
+  baseURL: '/api/dashscope',  // 使用本地代理
+  model: 'deepseek-v3.1',
   apiKeys: [
-    'ms-bc1564ca-2e11-4dc4-9cea-fb485028936c',  // primary key (updated)
-    'ms-86a76da4-13fa-4810-b412-759dc8511cc4'   // backup key
+    'sk-6c561648158845498bd79405450ebcd1',  // primary key (updated)
+    'sk-6c561648158845498bd79405450ebcd1'   // backup key (same as primary)
   ],
   currentKeyIndex: 0
 }
@@ -83,10 +83,10 @@ const callModelScopeAPI = async (messages, temperature = 0.7, maxTokens = 4096, 
       }
       
       console.time('[LLM] ⏱️ Request Latency')
-      console.log('🔍 callModelScopeAPI - About to request:', `${MODELSCOPE_CONFIG.baseURL}chat/completions`)
+      console.log('🔍 callModelScopeAPI - About to request:', `${MODELSCOPE_CONFIG.baseURL}/chat/completions`)
       
       // Send request (configurable for thinking mode and streaming)
-      const response = await fetch(`${MODELSCOPE_CONFIG.baseURL}chat/completions`, {
+      const response = await fetch(`${MODELSCOPE_CONFIG.baseURL}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

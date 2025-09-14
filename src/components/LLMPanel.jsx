@@ -323,15 +323,12 @@ const LLMPanel = ({
           onGenerateSuggestion && onGenerateSuggestion()
           break
         case 'followup':
-          onGenerateFollowUp && onGenerateFollowUp()
+          // 禁用：右侧控制台不再触发追问生成
+          console.log('⚠️ Follow-up generation is disabled in AI Console')
           break
         case 'intelligent_followup':
-          // 防止与信息选择面板的追问生成冲突
-          if (!showMissingInfoPanel) {
-            onGenerateIntelligentFollowUp && onGenerateIntelligentFollowUp()
-          } else {
-            console.log('⚠️ Information selection panel is displayed, skipping LLM panel follow-up generation')
-          }
+          // 禁用：右侧控制台不再触发智能追问生成
+          console.log('⚠️ Intelligent follow-up generation is disabled in AI Console')
           break
         case 'needs_analysis':
           onGenerateNeedsAnalysis && onGenerateNeedsAnalysis()
@@ -649,7 +646,14 @@ const LLMPanel = ({
             {/* 消息历史显示 */}
             <div className="space-y-3">
               {(() => {
-                const filteredMessages = messages.filter(m => !(m?.title && (m.title.includes('Generate Intelligent Follow-up') || m.title.includes('Negotiate Intelligent Follow-up'))))
+                const filteredMessages = messages.filter(m => {
+                  const t = m?.title || ''
+                  const lower = t.toLowerCase()
+                  // 屏蔽所有“追问/智能追问/Follow-up”相关的控制台项
+                  const isFollowUpRelated = t.includes('追问') || lower.includes('follow-up') || lower.includes('intelligent follow-up')
+                  const isExplicitExcluded = lower.includes('generate intelligent follow-up') || lower.includes('negotiate intelligent follow-up')
+                  return !(isFollowUpRelated || isExplicitExcluded)
+                })
                 return [...filteredMessages].reverse().map((message, reverseIndex) => {
                   const index = filteredMessages.length - 1 - reverseIndex // 基于过滤后的索引
                   return (

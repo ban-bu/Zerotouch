@@ -80,7 +80,9 @@ export const useMessageFlow = (currentScenario) => {
             accepted: false,
             negotiating: false,
             negotiated: false,
-            id: Date.now() + Math.random()
+            id: Date.now() + Math.random(),
+            // 关联到对应的综合分析消息
+            relatedComprehensiveId: context?.relatedComprehensiveId
           })
         }
         
@@ -328,7 +330,7 @@ export const useMessageFlow = (currentScenario) => {
         streamCallbacks: wrappedStreamCallbacks
       })
 
-      // Save current needs analysis results
+      // Save current needs analysis results（基础信息，稍后补充关联的综合分析消息ID）
       setCurrentNeedsAnalysis({
         originalContent: messageData.text,
         image: messageData.image,
@@ -377,9 +379,16 @@ export const useMessageFlow = (currentScenario) => {
           missingInfoOptions: llmResult.missingInfoOptions || [],
           translation: llmResult.translation,
           suggestion: llmResult.suggestion,
-          aiAdvice: llmResult.aiAdvice
+          aiAdvice: llmResult.aiAdvice,
+          id: `comp_${Date.now()}`
         }
         addMessage('solution', comprehensiveMessage)
+
+        // 记录本次综合分析消息ID，供后续生成的智能追问候选进行关联
+        setCurrentNeedsAnalysis(prev => ({
+          ...(prev || {}),
+          comprehensiveId: comprehensiveMessage.id
+        }))
       } else {
         setMessages(prev => {
           const newSolution = [...prev.solution]
@@ -400,6 +409,12 @@ export const useMessageFlow = (currentScenario) => {
           }
           return { ...prev, solution: newSolution }
         })
+
+        // 流式情况下，使用当前流的streamId作为综合分析消息ID
+        setCurrentNeedsAnalysis(prev => ({
+          ...(prev || {}),
+          comprehensiveId: currentStreamIdRef.current
+        }))
       }
 
       // 添加翻译后的消息到方案端
@@ -888,7 +903,8 @@ export const useMessageFlow = (currentScenario) => {
             streamCallbacks.onStreamStart(controller, {
               ...context,
               messageType: 'intelligent_followup_candidate',
-              selectedInfo: selectedOptions
+              selectedInfo: selectedOptions,
+              relatedComprehensiveId: currentNeedsAnalysis?.comprehensiveId
             })
           }
         }
