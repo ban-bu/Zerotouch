@@ -1,14 +1,48 @@
-node_modules
-npm-debug.log
-.git
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build outputs
+dist/
+build/
+
+# Development files
+.git/
 .gitignore
 README.md
-.env
-.nyc_output
-coverage
-.vscode
-.idea
-*.log
+*.md
+!railway-deploy-fix.md
+
+# Environment files
+.env*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
 .DS_Store
-dist
-build
+Thumbs.db
+
+# Test files
+coverage/
+.nyc_output/
+
+# Development only
+src/
+!server.js
+!package*.json
+!vite.config.js
+!tailwind.config.js
+!postcss.config.js

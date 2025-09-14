@@ -8,10 +8,11 @@
 ## ✅ 解决方案
 创建Express服务器处理API代理和静态文件服务
 
-### 📁 新增文件
+### 📁 新增和修改文件
 - **`server.js`** - Express服务器（API代理 + 静态文件）
+- **`.dockerignore`** - 优化Docker构建，减少镜像大小
 - **更新了** `package.json` - 添加express和http-proxy-middleware依赖
-- **更新了** `Dockerfile.railway` - 使用新的启动命令
+- **优化了** `Dockerfile.railway` - 多阶段构建，先安装依赖构建，后清理
 - **更新了** `railway.toml` - 健康检查路径改为`/health`
 
 ### 🔄 代理配置
@@ -29,13 +30,26 @@ app.use('/api/dashscope', createProxyMiddleware({
 ### 1. 提交更改到Git
 ```bash
 git add .
-git commit -m "fix: 添加Express服务器解决Railway API代理问题"
+git commit -m "fix: 添加Express服务器和优化Dockerfile解决Railway部署问题"
 git push origin main
 ```
 
 ### 2. Railway重新部署
 - Railway会自动检测到更改并重新部署
-- 新的部署将使用Express服务器而非静态文件服务器
+- 新的部署将使用优化后的Express服务器
+
+### 3. ⚠️ 如果仍有npm安装问题
+如果Railway部署时`npm ci`仍然失败，可以尝试以下解决方案：
+
+**方案A**: 使用npm install替代npm ci
+在Railway环境变量中添加：
+- `NPM_CONFIG_PRODUCTION=false`
+- `NODE_ENV=production`
+
+**方案B**: 修改Dockerfile.railway第13行：
+```dockerfile
+RUN npm install --no-audit --no-fund --verbose
+```
 
 ### 3. 验证修复
 部署完成后，检查以下端点：
@@ -45,11 +59,13 @@ git push origin main
 ## 🔍 修复验证清单
 
 - [x] Express服务器创建 (`server.js`)
-- [x] 依赖包添加 (`express`, `http-proxy-middleware`)
-- [x] Dockerfile更新 (使用`node server.js`)
+- [x] 依赖包安装 (`express`, `http-proxy-middleware`)
+- [x] Dockerfile优化 (多阶段构建，详细日志)
+- [x] .dockerignore创建 (减少构建上下文)
 - [x] 启动脚本更新 (`railway:start`)
 - [x] 健康检查路径更新 (`/health`)
 - [x] API代理配置 (`/api/dashscope -> DashScope API`)
+- [x] 本地构建测试通过
 
 ## 💡 技术细节
 
