@@ -40,7 +40,6 @@ coverage/
 .nyc_output/
 
 # Development only
-src/
 !server.js
 !package*.json
 !vite.config.js
