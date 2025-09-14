@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile.railway"
 
 [deploy]
-healthcheckPath = "/"
+healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
@@ -23,7 +23,7 @@ dockerfilePath = "Dockerfile.railway"
 buildContext = "."
 
 [services.deploy]
-healthcheckPath = "/"
+healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
