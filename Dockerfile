@@ -1,37 +1,48 @@
-# Railway专用Dockerfile - Express服务器版本
-FROM node:18-alpine
+# Multi-stage build for Railway deployment
+FROM node:18-alpine AS builder
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 安装系统依赖
-RUN apk add --no-cache curl && \
-    npm config set registry https://registry.npmjs.org/
-
-# 复制package文件并安装所有依赖（构建需要）
+# Copy package files
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund --verbose
 
-# 复制源代码和配置文件
-COPY src/ ./src/
-COPY server.js ./
-COPY vite.config.js tailwind.config.js postcss.config.js ./
-COPY index.html ./
+# Install dependencies
+RUN npm ci --only=production --silent
 
-# 构建前端应用
+# Copy source code
+COPY . .
+
+# Build the application
 RUN npm run build
 
-# 安装生产依赖并清理
-RUN npm prune --production && \
-    rm -rf src/ vite.config.js tailwind.config.js postcss.config.js index.html && \
-    npm cache clean --force
+# Production stage
+FROM node:18-alpine AS production
 
-# 暴露端口
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production --silent && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server.js ./
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+USER nodejs
+
+# Expose port
 EXPOSE 8080
 
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "const http = require('http'); http.get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
-# 启动Express服务器（带代理功能）
-CMD ["node", "server.js"]
+# Start the application
+CMD ["npm", "start"]

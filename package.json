@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "start": "node server.js",
     "railway:build": "npm ci && npm run build",
-    "railway:start": "node server.js"
+    "railway:start": "node server.js",
+    "railway:deploy": "railway up",
+    "postinstall": "npm run build"
   },
   "engines": {
     "node": ">=18.0.0",

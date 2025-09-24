@@ -1,0 +1,15 @@
+# Railway Environment Variables Template
+# Copy these settings to your Railway dashboard environment variables section
+
+# Required Variables:
+DASHSCOPE_API_KEY=your_dashscope_api_key_here
+
+# Optional Variables (Railway sets these automatically):
+PORT=8080
+NODE_ENV=production
+
+# Instructions:
+# 1. Go to your Railway project dashboard
+# 2. Navigate to Variables tab
+# 3. Add the DASHSCOPE_API_KEY variable with your actual API key
+# 4. Railway will automatically set PORT and NODE_ENV
